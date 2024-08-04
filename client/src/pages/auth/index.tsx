@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 // import Background from "@/assets/empty.png";
 import Victory from "@/assets/victory.svg";
@@ -7,19 +8,48 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Model from "@/components/Model";
-
+import { apiClient } from "@/lib/api-client";
+import { config } from "@/utils/config";
 
 const Auth = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
+  const validateSignup = () => {
+    if (!email.length) {
+      toast.error("Email is required");
+      return false;
+    }
+
+    if (!password.length) {
+      toast.error("password is required");
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Password and confirm password must be same.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleLogin = async () => {
     // Handle login logic here
   };
 
   const handleSignup = async () => {
-    // Handle signup logic here
+    if (validateSignup()) {
+      const response = await apiClient.post(
+        `${config.authRoute}/register`,
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response);
+    }
   };
 
   return (
@@ -95,7 +125,7 @@ const Auth = () => {
         </div>
         <div className="hidden xl:flex justify-center items-center">
           {/* <img src={Background} alt="background of login" /> */}
-          <Model/>
+          <Model />
         </div>
       </div>
     </div>
