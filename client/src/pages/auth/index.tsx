@@ -1,11 +1,13 @@
 import { useState } from "react";
 
-import Background from "@/assets/empty.png";
+// import Background from "@/assets/empty.png";
 import Victory from "@/assets/victory.svg";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Model from "@/components/Model";
+
 
 const Auth = () => {
   const [email, setEmail] = useState<string>("");
@@ -92,7 +94,8 @@ const Auth = () => {
           </div>
         </div>
         <div className="hidden xl:flex justify-center items-center">
-          <img src={Background} alt="background of login" />
+          {/* <img src={Background} alt="background of login" /> */}
+          <Model/>
         </div>
       </div>
     </div>
