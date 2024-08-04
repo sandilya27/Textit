@@ -10,11 +10,28 @@ import { Button } from "@/components/ui/button";
 import Model from "@/components/Model";
 import { apiClient } from "@/lib/api-client";
 import { config } from "@/utils/config";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+
+  const validateLogin = () => {
+    if (!email.length) {
+      toast.error("Email is required");
+      return false;
+    }
+
+    if (!password.length) {
+      toast.error("password is required");
+      return false;
+    }
+
+    return true;
+  };
 
   const validateSignup = () => {
     if (!email.length) {
@@ -36,7 +53,25 @@ const Auth = () => {
   };
 
   const handleLogin = async () => {
-    // Handle login logic here
+    if (validateLogin()) {
+      const response = await apiClient.post(
+        `${config.authRoute}/login`,
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+      if (response) {
+        setEmail("");
+        setPassword("");
+
+        if (response.data.user.id) {
+          if (response.data.user.profileSetup) navigate("/chat");
+          else navigate("/profile");
+        }
+      }
+      console.log(response);
+    }
   };
 
   const handleSignup = async () => {
@@ -48,6 +83,15 @@ const Auth = () => {
           withCredentials: true,
         }
       );
+      if (response) {
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+
+        if (response.status === 201) {
+          navigate("/profile");
+        }
+      }
       console.log(response);
     }
   };
