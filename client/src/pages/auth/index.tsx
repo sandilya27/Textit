@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 // import Background from "@/assets/empty.png";
 import Victory from "@/assets/victory.svg";
@@ -10,10 +11,12 @@ import { Button } from "@/components/ui/button";
 import Model from "@/components/Model";
 import { apiClient } from "@/lib/api-client";
 import { config } from "@/utils/config";
-import { useNavigate } from "react-router-dom";
+
+import { useAuthStore } from "@/store/auth-store";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { setUserInfo } = useAuthStore();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -66,6 +69,7 @@ const Auth = () => {
         setPassword("");
 
         if (response.data.user.id) {
+          setUserInfo(response.data.user);
           if (response.data.user.profileSetup) navigate("/chat");
           else navigate("/profile");
         }
@@ -89,6 +93,7 @@ const Auth = () => {
         setConfirmPassword("");
 
         if (response.status === 201) {
+          setUserInfo(response.data.user);
           navigate("/profile");
         }
       }
