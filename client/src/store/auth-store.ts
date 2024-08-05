@@ -13,7 +13,7 @@ interface User {
 
 type UserType = {
     userInfo: User | undefined,
-    setUserInfo: (userInfo: User) => void
+    setUserInfo: (userInfo: User | undefined) => void
 }
 
 export const useAuthStore = create<UserType>()((set) => ({

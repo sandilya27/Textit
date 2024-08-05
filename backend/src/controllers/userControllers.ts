@@ -6,6 +6,10 @@ import userModel from "../models/userModel";
 import { sign } from "jsonwebtoken";
 import { config } from "../config/config";
 
+interface CustomRequest extends Request {
+    userId?: string;
+}
+
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
 const createToken = (email: string, userId: string) => {
@@ -100,6 +104,30 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
                 color: user.color
             }
         });
+    } catch (error) {
+        return createHttpError(500, "Internal server error!");
+    }
+}
+
+export const getUserInfo = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const userData = await userModel.findById(req.userId);
+
+        if (!userData) {
+            const error = createHttpError(404, "User with given id not found!");
+            return next(error);
+        }
+
+        res.status(200).json({
+            id: userData._id,
+            email: userData.email,
+            profileSetup: userData.profileSetup,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            image: userData.image,
+            color: userData.color
+        });
+
     } catch (error) {
         return createHttpError(500, "Internal server error!");
     }
