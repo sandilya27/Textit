@@ -1,7 +1,15 @@
 import express from "express";
 import multer from "multer";
 
-import { createUser, getUserInfo, loginUser, updateProfile, addProfileImage, removeProfileImage } from "../controllers/userControllers";
+import {
+    createUser,
+    getUserInfo,
+    loginUser,
+    updateProfile,
+    addProfileImage,
+    removeProfileImage,
+    logout
+} from "../controllers/userControllers";
 import { verifyToken } from "../middlewares/authMiddleware";
 
 export const userRouter = express.Router();
@@ -21,3 +29,4 @@ userRouter.post(
     addProfileImage
 );
 userRouter.delete("/remove-profile-image", verifyToken, removeProfileImage);
+userRouter.post('/logout', logout);

@@ -5,6 +5,7 @@ import cors from "cors";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { userRouter } from "./routes/userRouter";
 import { config } from "./config/config";
+import { contactRouter } from "./routes/contactRoute";
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/users', userRouter);
+app.use('/api/contacts', contactRouter);
 
 //Global error handler
 app.use(globalErrorHandler);
