@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import bcrypt, { compare } from "bcrypt";
+import fs from "node:fs";
+import path from "node:path";
 
 import userModel from "../models/userModel";
 import { sign } from "jsonwebtoken";
 import { config } from "../config/config";
+import cloudinary from "../config/cloudinary";
 
 interface CustomRequest extends Request {
     userId?: string;
@@ -126,6 +129,108 @@ export const getUserInfo = async (req: CustomRequest, res: Response, next: NextF
             lastName: userData.lastName,
             image: userData.image,
             color: userData.color
+        });
+
+    } catch (error) {
+        return createHttpError(500, "Internal server error!");
+    }
+}
+
+export const updateProfile = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const { userId } = req;
+        const { firstName, lastName, color } = req.body;
+
+        console.log(color);
+
+        if (!firstName || !lastName) {
+            const error = createHttpError(400, "Firstname & lastname is required!");
+            return next(error);
+        }
+
+        const userData = await userModel.findByIdAndUpdate(
+            userId,
+            {
+                firstName,
+                lastName,
+                color: color,
+                profileSetup: true
+            },
+            { new: true, runValidators: true }
+        );
+
+
+        res.status(200).json({
+            id: userData?._id,
+            email: userData?.email,
+            profileSetup: userData?.profileSetup,
+            firstName: userData?.firstName,
+            lastName: userData?.lastName,
+            image: userData?.image,
+            color: userData?.color
+        });
+
+    } catch (error) {
+        return createHttpError(500, "Internal server error!");
+    }
+}
+
+export const addProfileImage = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const { userId } = req;
+        console.log(userId);
+        if (!req.file) {
+            const error = createHttpError(400, "File is required!");
+            return next(error);
+        }
+
+        const file = req.file;
+
+        const profileImageMimeType = file.mimetype.split('/')[1];
+        const fileName = file.filename;
+        const filePath = path.resolve(__dirname, "../../uploads/profiles", fileName)
+        let uploadResult;
+
+        try {
+            uploadResult = await cloudinary.uploader.upload(filePath, {
+                public_id: fileName,
+                folder: "profile-image",
+                format: profileImageMimeType,
+            });
+        } catch (error) {
+            console.log(error)
+
+            return next(createHttpError(500, "Error while uploading profile image!"));
+        }
+
+        const updateUser = await userModel.findByIdAndUpdate(userId, { image: uploadResult.secure_url }, { new: true, runValidators: true });
+
+        await fs.promises.unlink(filePath);
+
+        res.status(200).json({
+            image: updateUser?.image,
+        });
+
+    } catch (error) {
+        return createHttpError(500, "Internal server error!");
+    }
+}
+
+export const removeProfileImage = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const { userId } = req;
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            const error = createHttpError(404, "User not found!");
+            return next(error);
+        }
+
+        user.image = "";
+        await user.save();
+
+        res.status(200).json({
+            message: "profile image removed successfully"
         });
 
     } catch (error) {

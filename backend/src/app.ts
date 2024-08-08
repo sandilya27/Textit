@@ -12,11 +12,13 @@ app.use(express.json());
 app.use(
     cors({
         origin: [config.origin as string],
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "DELETE"],
         credentials: true
     })
 );
 app.use(cookieParser());
+
+app.use("/uploads/profiles", express.static("/uploads/profiles"));
 
 //Routes
 app.get('/', (req, res) => {

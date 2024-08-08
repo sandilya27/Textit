@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 
-interface User {
+export interface User {
     id: string;
     email: string;
     password: string;
     firstName: string;
     lastName: string;
-    image: string;
+    image: string | null;
     color: number;
     profileSetup: boolean;
 }
